@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulasi ABM SMK 2026 - 14 Subtes (160 Soal)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- TOP NAVBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-badge">ABM</div>
+      <div>
+        <h1>Simulasi ABM SMK 2026</h1>
+        <span class="subtitle">14 Subtes &bull; 160 Soal &bull; 122 Menit</span>
+      </div>
+    </div>
+    <div class="topbar-status" id="topbar-status" style="display: none;">
+      <div class="pill" id="subtest-badge">Subtes 1/14</div>
+      <div class="timer-box" id="timer-box">
+        <span class="timer-label">Sisa Waktu Subtes</span>
+        <span class="timer-value" id="timer-display">05:00</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- VIEW 1: LOGIN / IDENTITAS PESERTA -->
+    <section id="view-login" class="card login-card">
+      <div class="card-header">
+        <h2>Identitas Peserta Simulasi</h2>
+        <p>Masukkan data diri sebelum memulai simulasi Asesmen Bakat Murid (ABM) jenjang SMK.</p>
+      </div>
+      <form id="login-form" class="form-grid">
+        <div class="form-group">
+          <label for="input-nama">Nama Lengkap Siswa</label>
+          <input type="text" id="input-nama" placeholder="Contoh: Budi Santoso" required />
+        </div>
+        <div class="form-group">
+          <label for="input-nisn">NISN (10 Digit)</label>
+          <input type="text" id="input-nisn" placeholder="Contoh: 0081234567" maxlength="10" required />
+        </div>
+        <div class="form-group">
+          <label for="input-jurusan">Kompetensi Keahlian / Jurusan</label>
+          <select id="input-jurusan" required>
+            <option value="">-- Pilih Jurusan --</option>
+            <option value="PPLG / RPL">Pengembangan Perangkat Lunak & Gim (PPLG / RPL)</option>
+            <option value="TJKT / TKJ">Teknik Jaringan Komputer & Telekomunikasi (TJKT / TKJ)</option>
+            <option value="TO / TKR / TSM">Teknik Otomotif (TKR / TSM)</option>
+            <option value="TP / Teknik Pemesinan">Teknik Pemesinan</option>
+            <option value="AKL / Akuntansi">Akuntansi dan Keuangan Lembaga</option>
+            <option value="MPLB / OTKP">Manajemen Perkantoran dan Layanan Bisnis</option>
+            <option value="Lainnya">Jurusan SMK Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="input-mode">Mode Latihan</label>
+          <select id="input-mode">
+            <option value="full">Simulasi Penuh (14 Subtes Berurutan - 160 Soal)</option>
+            <option value="practice">Mode Latihan Bebas (Bisa Lompat Subtes)</option>
+          </select>
+        </div>
+
+        <div class="rules-box">
+          <h3>Ketentuan Simulasi ABM (Sesuai Pedoman 2026):</h3>
+          <ul>
+            <li>Terdapat <strong>14 Subtes</strong> dengan batas waktu masing-masing (total 160 soal, 122 menit).</li>
+            <li>Pada <strong>Mode Simulasi Penuh</strong>, peserta mengerjakan subtes secara berurutan dan <strong>tidak dapat kembali ke subtes sebelumnya</strong> setelah waktu habis atau berpindah subtes.</li>
+            <li>Khusus <strong>Subtes 14 (Klerikal Memory)</strong>, layar akan menampilkan tabel kode hafalan terlebih dahulu sebelum soal muncul.</li>
+            <li>Hasil profil kemampuan per bidang akan langsung ditampilkan setelah seluruh subtes selesai.</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg">Mulai Simulasi Sekarang &rarr;</button>
+      </form>
+    </section>
+
+    <!-- VIEW 2: PETUNJUK SUBTES (INTERSTITIAL) -->
+    <section id="view-instruction" class="card instruction-card" style="display: none;">
+      <div class="badge-group">
+        <span class="badge-navy" id="inst-group">Kelompok Kemampuan</span>
+        <span class="badge-orange" id="inst-number">Subtes 1 dari 14</span>
+      </div>
+      <h2 id="inst-title">Verbal Analogi</h2>
+      <div class="inst-meta">
+        <div class="meta-item">
+          <span class="meta-label">Jumlah Soal</span>
+          <span class="meta-val" id="inst-count">10 Soal</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Alokasi Waktu</span>
+          <span class="meta-val" id="inst-time">5 Menit</span>
+        </div>
+      </div>
+      <div class="inst-desc-box">
+        <h4>Petunjuk Pengerjaan Subtes:</h4>
+        <p id="inst-desc">Pilihlah pasangan kata yang memiliki hubungan paling serupa dengan pasangan kata pada soal.</p>
+      </div>
+      <div id="inst-memory-preview" class="memory-box" style="display: none;">
+        <div class="memory-header">
+          <h4>HAFALKAN TABEL KODE BERIKUT!</h4>
+          <span class="memory-timer" id="memory-countdown">Waktu Hafalan: 30 detik</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Kode / Jurusan / Barang</th>
+              <th>Sandi Angka</th>
+              <th>Kode / Jurusan / Barang</th>
+              <th>Sandi Angka</th>
+            </tr>
+          </thead>
+          <tbody id="memory-table-body"></tbody>
+        </table>
+      </div>
+      <div class="action-row">
+        <button id="btn-start-subtest" class="btn btn-primary btn-lg">Mulai Mengerjakan Subtes Ini &rarr;</button>
+      </div>
+    </section>
+
+    <!-- VIEW 3: AREA PENGERJAAN SOAL -->
+    <section id="view-exam" class="exam-layout" style="display: none;">
+      <div class="question-panel card">
+        <div class="q-header">
+          <div>
+            <span class="q-subtest-name" id="exam-subtest-title">Subtes 1: Verbal Analogi</span>
+            <h3 id="exam-q-number">Soal Nomor 1</h3>
+          </div>
+          <button id="btn-flag" class="btn btn-outline-warning btn-sm" title="Tandai ragu-ragu">
+            &#9873; Ragu-ragu
+          </button>
+        </div>
+
+        <!-- Kotak Bacaan / Kasus / Tabel jika ada -->
+        <div id="exam-stimulus" class="stimulus-box" style="display: none;"></div>
+
+        <!-- Teks Pertanyaan -->
+        <div id="exam-question-text" class="question-text"></div>
+
+        <!-- Pilihan Jawaban -->
+        <div id="exam-options" class="options-list"></div>
+
+        <!-- Navigasi Bawah -->
+        <div class="q-footer">
+          <button id="btn-prev" class="btn btn-secondary">&larr; Sebelumnya</button>
+          <button id="btn-next" class="btn btn-primary">Selanjutnya &rarr;</button>
+          <button id="btn-finish-subtest" class="btn btn-success" style="display: none;">Selesai Subtes Ini &#10003;</button>
+        </div>
+      </div>
+
+      <!-- SIDEBAR NAVIGASI NOMOR SOAL -->
+      <aside class="nav-panel card">
+        <div class="nav-header">
+          <h4>Navigasi Soal Subtes</h4>
+          <span id="nav-answered-count">0 / 10 Dijawab</span>
+        </div>
+        <div id="nav-grid" class="nav-grid"></div>
+        <div class="nav-legend">
+          <span><i class="dot dot-answered"></i> Sudah dijawab</span>
+          <span><i class="dot dot-flagged"></i> Ragu-ragu</span>
+          <span><i class="dot dot-empty"></i> Belum dijawab</span>
+        </div>
+        <div id="practice-switcher" class="practice-switcher" style="display: none;">
+          <label for="select-subtest">Pindah Subtes (Mode Latihan):</label>
+          <select id="select-subtest"></select>
+        </div>
+      </aside>
+    </section>
+
+    <!-- VIEW 4: HASIL & PEMBAHASAN -->
+    <section id="view-result" class="card result-card" style="display: none;">
+      <div class="result-header">
+        <div>
+          <span class="badge-navy">LAPORAN HASIL SIMULASI ABM SMK</span>
+          <h2 id="res-student-name">Nama Siswa</h2>
+          <p id="res-student-meta">NISN: - | Jurusan: -</p>
+        </div>
+        <div class="total-score-box">
+          <span class="score-label">Total Jawaban Benar</span>
+          <span class="score-big" id="res-total-correct">0 / 160</span>
+          <span class="score-pct" id="res-total-pct">0%</span>
+        </div>
+      </div>
+
+      <h3>Profil Kemampuan per Bidang (7 Kelompok Bakat)</h3>
+      <div id="res-domain-bars" class="domain-bars"></div>
+
+      <h3>Rincian Per Subtes (14 Subtes)</h3>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Subtes</th>
+              <th>Kelompok</th>
+              <th>Jumlah Soal</th>
+              <th>Benar</th>
+              <th>Skor (%)</th>
+            </tr>
+          </thead>
+          <tbody id="res-subtest-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="result-actions">
+        <button id="btn-toggle-review" class="btn btn-secondary">Lihat Pembahasan & Kunci Jawaban</button>
+        <button id="btn-restart" class="btn btn-primary">Ulangi Simulasi</button>
+      </div>
+
+      <div id="review-section" class="review-section" style="display: none;">
+        <h3>Pembahasan & Kunci Jawaban Lengkap</h3>
+        <div class="review-filter">
+          <label for="filter-review-subtest">Filter Subtes:</label>
+          <select id="filter-review-subtest"></select>
+        </div>
+        <div id="review-list" class="review-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
